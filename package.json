@@ -20,11 +20,13 @@
   "dependencies": {
     "copy-webpack-plugin": "^11.0.0",
     "leaflet": "^1.9.3",
+    "leaflet-draw": "^1.0.4",
     "next": "^13.0.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.7.1",
     "react-leaflet": "^4.2.0",
+    "react-leaflet-draw": "^0.20.4",
     "sass": "^1.57.0"
   }
 }
