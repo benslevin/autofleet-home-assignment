@@ -35,8 +35,8 @@ export default function Home() {
       polygonIdArray = polygonIdArray.filter((id) => !idsToRemove.includes(id));
   };
 
-  //event handler for creating and editing polygon
-  const editPolygon = (e) =>{
+  //event handler for creating polygon
+  const createPolygon = (e) =>{
     polygon = [];
     for(let i=0; i<e.layer._latlngs[0].length; i++){
       polygon[i] = e.layer._latlngs[0][i]
@@ -82,7 +82,7 @@ export default function Home() {
   // }
 
   //event handler for deleting polygon
-  const _onDeleted = (e) => {
+  const deletePolygon = (e) => {
     var lengthOfArray = Object.keys(e.layers._layers).length
     for(let i=0; i<lengthOfArray; i++){
       const key = Object.keys(e.layers._layers)[i];
@@ -156,9 +156,9 @@ export default function Home() {
           <FeatureGroup>
             <EditControl
               position="topright"
-              onCreated={editPolygon}
-              onDeleted={_onDeleted}
-              onEdited={editPolygon}
+              onCreated={createPolygon}
+              onDeleted={deletePolygon}
+              edit={{edit: false, remove: true}}
               draw={{
                 rectangle: false,
                 circle: false,
