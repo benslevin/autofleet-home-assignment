@@ -19,12 +19,13 @@ img {
   max-width: 100%;
   height: auto;
 }
- .leaflet-container {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        height: 80vh;
-       width: 90vw;
-       align-items: center;
-     }
+
+.leaflet-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 90vw;
+  align-items: center;
+}

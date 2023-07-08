@@ -1,6 +1,9 @@
 import Head from 'next/head';
 import Map from '@components/Map';
 import styles from '@styles/Home.module.scss';
+import React from 'react';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 
 import { useState } from 'react';
 
@@ -34,6 +37,7 @@ export default function Home() {
 
   //event handler for creating and editing polygon
   const editPolygon = (e) =>{
+    polygon = [];
     for(let i=0; i<e.layer._latlngs[0].length; i++){
       polygon[i] = e.layer._latlngs[0][i]
     }
@@ -45,26 +49,31 @@ export default function Home() {
 
   //server call to get list of all cars inside polygon
   const handleCreatedExportPolygon = async function(){
-    const res  = await fetch("/api/create-polygon",{
+    const res  = await fetch("/api/get-cars-in-polygon",{
     method:"POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body:JSON.stringify(polygon)
-  })  
-  // const responseJson  = await res.json()
-  // // const newMarkers = Object.entries(responseJson).map(([id, location]) => ({
-  // //   id: id,
-  // //   location: {
-  // //     lat: (location).lat,
-  // //     lng: (location).lng,
-  // //   },
-  // //   polygonId: polygonIdArray[polygonIdArray.length - 1]
-  // // }));
-  // // addMarkers(newMarkers);
+      body:JSON.stringify(polygon),
+  }) 
+  if(res.ok){
+  const responseJson  = await res.json()
+  const { items } = responseJson;
+  const newMarkers = items.map(({id, location}) => ({
+    id: id,
+    location: {
+      lat: location.lat,
+      lng: location.lng,
+    },
+    polygonId: polygonIdArray[polygonIdArray.length - 1]
+  }));
+    addMarkers(newMarkers);
+  }else {
+      console.error("Error occurred while fetching data:", res.status);
+    }
   }
 
-  //server call to get list of all cars, not used from my understanding of the assignment
+  // server call to get list of all cars, not used from my understanding of the assignment
   // const getAllCars = async function(){
   //   const res  = await fetch(import.meta.env.VITE_GET_ALL_CARS_SERVER_URL,{ 
   //     method:"GET",
@@ -86,43 +95,83 @@ export default function Home() {
 
   return (
     <>
-  {/* add the select input here.. */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center',
+        marginTop: '10px',
+        padding: '2px',
+        paddingTop: '10px',
+        top: '5%',
+        left: '50%',
+        transform: 'translate(-50%, -65%)',
+        alignItems: 'center', 
+        position:'absolute', 
+        zIndex: 999,
+        }}>
+          <span style={{ marginRight: '10px', marginTop: '-11px' }}>List of available cars: </span>
+          <Select
+            style={{
+              display: 'flex',
+              alignItems: 'left',
+              paddingLeft: '50px',
+              height: '25px',
+              width: '400px',
+              marginBottom: '10px',
+            }}
+            value={selectedValue}
+            onChange={handleChange}
+            >
+            {markers.length === 0 && (
+            <MenuItem disabled>
+              No cars available...
+            </MenuItem>
+            )}
+            {markers.length > 0 && selectedValue === '' && (
+              <MenuItem disabled>
+                Please select a car
+              </MenuItem>
+            )}
+            {markers.map((item, index) => (
+              <MenuItem key={index} value={item.id}>
+                {item.id}
+              </MenuItem>
+            ))}
+          </Select>
+       </div>
+       <div className={styles.mapContainer}>
           <Map className={styles.homeMap} 
-          width="800" height="400" 
+          style = {{width: "80vw", height: "80vh" }}
           center={DEFAULT_CENTER} zoom={13}>
             {({  TileLayer, FeatureGroup, Marker, Popup  },{EditControl}) => (
-              <>
-
-    <TileLayer
-      attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      url = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
-    />
-    {markers.map((marker) => (
-      <Marker key={marker.id} position={[marker.location.lat, marker.location.lng]}>
-        <Popup>{marker.id}</Popup>
-      </Marker>
-    ))}
-    <FeatureGroup>
-      <EditControl
-        position="topright"
-        onCreated={editPolygon}
-        onDeleted={_onDeleted}
-        onEdited={editPolygon}
-        draw={{
-          rectangle: false,
-          circle: false,
-          circlemarker: false,
-          marker: false,
-          polyline: false
-        }}
-      />
-    </FeatureGroup>
-
-              </>
-            )}
-          </Map>
-
-
+            <>
+          <TileLayer
+            attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+          />
+          {markers.map((marker) => (
+            <Marker key={marker.id} position={[marker.location.lat, marker.location.lng]}>
+              <Popup>{marker.id}</Popup>
+            </Marker>
+          ))}
+          <FeatureGroup>
+            <EditControl
+              position="topright"
+              onCreated={editPolygon}
+              onDeleted={_onDeleted}
+              onEdited={editPolygon}
+              draw={{
+                rectangle: false,
+                circle: false,
+                circlemarker: false,
+                marker: false,
+                polyline: false
+              }}
+            />
+          </FeatureGroup>
+      </>
+       )}
+      </Map>
+      </div>
     </>
   )
 }
